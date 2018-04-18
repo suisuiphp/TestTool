@@ -66,8 +66,8 @@ class FileServer(object):
 
 
 if __name__ == "__main__":
-    # file = "/Users/yan/PycharmProjects/TestTool/department_tags.txt"
-    file = "C:\Users\Administrator\Desktop\department_tags.txt"
+    file = "/Users/yan/PycharmProjects/TestTool/department_tags.txt"
+    # file = "C:\Users\Administrator\Desktop\department_tags.txt"
     open_format = "rb"
     # fileserver = FileServer()
     #

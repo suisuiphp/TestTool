@@ -109,9 +109,10 @@ class DepartmentTags(object):
 
 
 if __name__ == "__main__":
-    db = "mysql,root/6tfc^YHN@10.0.127.16:3306/sodap"
-    # file = "/Users/yan/PycharmProjects/TestTool/department_tags.txt"
-    file = "C:\Users\Administrator\Desktop\department_tags.txt"
+    # db = "mysql,root/6tfc^YHN@10.0.127.16:3306/sodap"
+    file = "/Users/yan/PycharmProjects/TestTool/department_tags.txt"
+    # file = "C:\Users\Administrator\Desktop\department_tags.txt"
+    db = "mysql,root/6tfc^YHN@ali2.jycch.com:3306/sodap"
     open_format = "rb"
     code_format = "gb2312"
     deptServer = DepartmentTags(db)
