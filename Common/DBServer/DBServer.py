@@ -59,3 +59,24 @@ class DBServer(object):
         finally:
             self.__close(conn,cur)
         return list_rs
+
+    def updateDataBySQL(self,str_sql):
+        conn,cur = self.__connect()
+        try:
+            cur.execute(str_sql)
+            conn.commit()
+        except Exception as e:
+            print ("*ERROR*" , repr(e))
+        finally:
+            self.__close(conn,cur)
+
+    def deleteDataBySQL(self,str_sql):
+        conn,cur = self.__connect()
+        try:
+            cur.execute(str_sql)
+            conn.commit()
+        except Exception as e:
+
+            print ("*ERROR*" , repr(e))
+        finally:
+            self.__close(conn,cur)

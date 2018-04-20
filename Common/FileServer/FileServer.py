@@ -64,10 +64,16 @@ class FileServer(object):
             finally:
                 self.__file_close(file)
 
+    def get_encode_format(self,filename):
+        file_data = self.file_read(filename,"rb")
+        encode_info = chardet.detect(file_data)
+        encode_format = encode_info.get("encoding")
+        print encode_format
+
 
 if __name__ == "__main__":
-    file = "/Users/yan/PycharmProjects/TestTool/department_tags.txt"
-    # file = "C:\Users\Administrator\Desktop\department_tags.txt"
+    # file = "/Users/yan/PycharmProjects/TestTool/department_tags.txt"
+    file = "C:\Users\Administrator\Desktop\department_tags.txt"
     open_format = "rb"
     # fileserver = FileServer()
     #
@@ -75,10 +81,6 @@ if __name__ == "__main__":
     # # print str_data.decode("gb2312")
     # list_data = str_data.split("\n")
     # print(list_data)
-
-
-
-
     #验证文件编码格式
     f = open(file, "rb")
     data = f.read()
@@ -86,31 +88,3 @@ if __name__ == "__main__":
     f.close()
 
 
-    # print(data.decode("utf-8"))
-    # try:
-    #     file = open("tes.txt","rb")
-    # except Exception as e:
-    #     print("*ERROR* %s" % repr(e))
-    # # file = open("tes.txt", "rb")
-    # data_list = file.readlines()
-    # file.close()
-    # tag_deps = {}
-    # for line in data_list:
-    #     line = str(line.decode("utf-8"))
-    #     line = line.replace("\n", "")
-    #     line = line.replace("\r", "")
-    #     line = line.replace(" ", "")
-    #     tag_deps[line.split(":")[0]] = line.split(":")[1]
-    # print(tag_deps)
-    #
-    # dep_tags = {"妇产科": "妇科", "感染科": "感染内科"}
-    # for department, str_tags in dep_tags.items():
-    #     print(department, str_tags)
-    #     list_tags = str_tags.split(",")
-    #     list_tags_ref = tag_deps.get(department).split(",")
-    #     print("111", list_tags_ref)
-    #     if list_tags_ref == None:
-    #         print("unknown department")
-    #     else:
-    #         missed_tags = [tag for tag in list_tags_ref if tag not in list_tags]
-    #         print("department:%s mistags:%s" % (department, ",".join(missed_tags)))

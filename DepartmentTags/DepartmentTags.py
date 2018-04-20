@@ -56,74 +56,188 @@ class DepartmentTags(object):
             dept_tags[dept_tag.split(":")[0]] = dept_tag.split(":")[1].split(",")
         return dept_tags
 
+    def get_taginfo(self):
+        '''
+        标签信息：标签id，标签名称，标签类型，删除标志
+        :return: 标签信息列表
+        '''
+        sql = "SELECT * FROM tags WHERE tag_name NOT IN ('A+','A','B') AND is_deleted=0"
+        tags_info = self.db_server.listDataBySQL(sql)
+        return tags_info
+
     def get_deptinfo(self):
         '''
         科室信息：科室id，科室名称，医院id，医院名称
         :return: 科室信息列表
         '''
         sql = "SELECT d.id,d.name,d.hospital_id,h.name FROM departments d,hospitals h WHERE d.is_deleted = 0 and d.hospital_id=h.id"
-        list_depts = self.db_server.listDataBySQL(sql)
-        return list_depts
+        depts_info = self.db_server.listDataBySQL(sql)
+        # for i in range(10):
+        #     print len(depts_info[i][3])
+        #     print ("%-10d%-30s%-10d%-30s" %(depts_info[i][2],self.myAlign(depts_info[i][3],30),depts_info[i][0],depts_info[i][1]))
+        return depts_info
 
-    def get_taginfo(self):
+    def myAlign(self,string,length=0):
+        if length == 0:
+            return string
+        slen = len(string)
+        re_str = string
+        if isinstance(string,str):
+            placeholder = " "
+        else:
+            placeholder = "  "
+        while slen < length:
+            re_str += placeholder
+            slen += 1
+        return re_str
+
+
+    def get_dept_taginfo(self):
         '''
         科室标签信息：科室id，科室名称，标签名称，标签id
         :return: 科室标签列表
         '''
         sql = "SELECT department_id,tag_name,tag_id FROM departmert_tag WHERE tag_name not in ('A+','A','B') and is_grade=0 ORDER BY department_id"
-        list_tags = self.db_server.listDataBySQL(sql)
-        return list_tags
+        depttags_info = self.db_server.listDataBySQL(sql)
+        return depttags_info
 
-    def assertTagsOfDepartments(self, list_depts, list_tags, ref_tags_dict):
-        print list_depts
-        msg = []
-        for dept in list_depts:
+    def assertTagsOfDepartments(self, depts_info,depttags_info, ref_tags_info):
+        '''
+        检查数据库中科室标签与参考文件中科室标签是否一致
+        :param depts_info: 科室列表[(科室id，科室名称，医院id，医院名称),...]
+        :param depttags_info: 科室标签列表[(科室id，科室名称，标签名称，标签id),...]
+        :param ref_tags_info: 参考科室标签字典{科室名称:[标签1,标签2,...],...}
+        :return:结果信息msg，未到标签的科室列表untaged_depts，未检验的科室列表unchecked_depts，标签有误的科室列表wrongtag_depts
+        '''
+        msg = ["%-10s%-35s%-8s%-20s%-34s%-38s%-30s" % (u"医院id", u"医院", u"科室id", u"科室", u"标签", u"参考标签", u"结果")]
+        untaged_depts = []
+        unchecked_depts = []
+        wrongtag_depts = []
+        for dept in depts_info:
             dept_id = dept[0]
             dept_name = dept[1]
-            list_dept_tags = [list_tags[i][1] for i in range(len(list_tags)) if list_tags[i][0] == dept_id]
-            list_dept_tags_ref = ref_tags_dict.get(dept_name,[])
+            list_dept_tags = [depttags_info[i][1] for i in range(len(depttags_info)) if depttags_info[i][0] == dept_id]
+            list_dept_tags_ref = ref_tags_info.get(dept_name,[])
 
             if len(list_dept_tags) == 0:  #数据库中未给该科室打标签
                 # print ("%s(id:%d)-%s(id:%d) has no tag in db" % (dept[3],dept[2],dept_name,dept_id))
-                msg.append("%s(id:%d)-%s(id:%d) has no tag in db" % (dept[3],dept[2],dept_name,dept_id))
-                continue
-            else:  #数据库中已经给该科室打标签
-                if len(list_dept_tags_ref) == 0: #参照文件中不存在该科室的标签信息
-                    # print ("%s(id:%d)-%s(id:%d) has no refrence tags in file" % (dept[3],dept[2],dept_name,dept_id))
-                    msg.append("%s(id:%d)-%s(id:%d) has no refrence tags in file" % (dept[3],dept[2],dept_name,dept_id))
-                    continue
-                else:
-                    missed_tags = [tag for tag in list_dept_tags_ref if tag not in list_dept_tags]
-                    wrong_tags = [tag for tag in list_dept_tags if tag not in list_dept_tags_ref]
-                    if len(missed_tags) > 0:
-                        # print "1---"
-                        # print ("%s(id:%d)-%s(id:%d)  in db missed tags:%s" % (dept[3],dept[2],dept_name,dept_id,",".join(missed_tags)))
-                        msg.append("%s(id:%d)-%s(id:%d)  in db missed tags:%s" % (dept[3],dept[2],dept_name,dept_id,",".join(missed_tags)))
+                msg.append("%-10s%s%-10s%-s%-s%-s%-30s" %(str(dept[2]),
+                                                          self.myAlign(dept[3],20),
+                                                          str(dept_id),
+                                                          self.myAlign(dept_name,10),
+                                                          self.myAlign("**",38),
+                                                          self.myAlign(u",".join(list_dept_tags_ref),20),
+                                                          u"未打标签"))
+                untaged_depts.append(dept)
+            if len(list_dept_tags_ref) == 0:  # 参照文件中不存在该科室的标签信息
+                # print ("%s(id:%d)-%s(id:%d) has no refrence tags in file" % (dept[3],dept[2],dept_name,dept_id))
+                msg.append("%-10s%s%-10s%-s%-s%-s%-30s" % (str(dept[2]),
+                                                           self.myAlign(dept[3], 20),
+                                                           str(dept_id),
+                                                           self.myAlign(dept_name, 9),
+                                                           self.myAlign(u",".join(list_dept_tags), 20),
+                                                           self.myAlign("**", 40),
+                                                           u"参考标签不存在"))
+                unchecked_depts.append(dept)
+            if len(list_dept_tags) > 0 and len(list_dept_tags_ref) > 0:  #将数据库中标签与参考文件中做比较
+                missed_tags = [tag for tag in list_dept_tags_ref if tag not in list_dept_tags]  #漏打的标签
+                wrong_tags = [tag for tag in list_dept_tags if tag not in list_dept_tags_ref]   #错误的标签
+                if len(missed_tags) > 0:
+                    # print ("%s(id:%d)-%s(id:%d)  in db missed tags:%s" % (dept[3],dept[2],dept_name,dept_id,",".join(missed_tags)))
+                    msg.append(
+                        "%-10s%s%-10s%-s%-s%-s%-30s" % (str(dept[2]),
+                                                        self.myAlign(dept[3], 20),
+                                                        str(dept_id),
+                                                        self.myAlign(dept_name,9),
+                                                        self.myAlign(u",".join(list_dept_tags), 20),
+                                                        self.myAlign(u",".join(list_dept_tags_ref), 21),
+                                                        u"不完整标签"))
+                    wrongtag_depts.append(dept)
 
-                    if len(wrong_tags) > 0:
-                        # print "2---"
-                        # print ("%s(id:%d)-%s(id:%d)  in db has wrong tags:%s" % (dept[3],dept[2],dept_name,dept_id,",".join(wrong_tags)))
-                        msg.append("%s(id:%d)-%s(id:%d)  in db has wrong tags:%s" % (dept[3],dept[2],dept_name,dept_id,",".join(wrong_tags)))
-        return msg
+                if len(wrong_tags) > 0:
+                    # print ("%s(id:%d)-%s(id:%d)  in db has wrong tags:%s" % (dept[3],dept[2],dept_name,dept_id,",".join(wrong_tags)))
+                    msg.append(
+                        "%-10s%s%-10s%-s%-s%-s%-30s" % (str(dept[2]),
+                                                        self.myAlign(dept[3], 20),
+                                                        str(dept_id),
+                                                        self.myAlign(dept_name, 10),
+                                                        self.myAlign(u",".join(list_dept_tags), 20),
+                                                        self.myAlign(u",".join(list_dept_tags_ref), 20),
+                                                        u"错误标签"))
+                    wrongtag_depts.append(dept)
+        return msg,untaged_depts,unchecked_depts,wrongtag_depts
+
+    def attachTagsToDept(self,depts_info,tags_info,ref_tags_info):
+        '''
+        给科室打标签
+        :param depts_info: 科室列表[(科室id，科室名称，医院id，医院名称),...]
+        :param tags_info: 标签列表[(标签id，标签名称，标签类型，删除标志),...]
+        :param ref_tags_info: 参考科室标签字典{科室名称:[标签1,标签2,...],...}
+        :return:
+        '''
+        fail_taged_depts = []
+        error_msg=[]
+        sql_del = []
+        sql_insert = []
+        for dept in depts_info:
+            # 获取参考标签名称列表
+            tags = ref_tags_info.get(dept[1])
+            if tags == None: #参考文件中没有该科室的标签信息
+                fail_taged_depts.append(dept)
+                error_msg.append("No tags for department in refrence file: %s" % str(dept))
+                continue
+
+            # 获取数据库中标签列表[(科室id，科室名称，标签id，标签名称),...]，根据标签名称获取标签id
+            dept_tags_info = [(dept[0], dept[1], tags_info[i][0], tags_info[i][1])
+                              for i in range(len(tags_info)) if tags_info[i][1] in tags]
+            if len(dept_tags_info) == 0: #在数据库中未找到标签名称对应的标签信息
+                fail_taged_depts.append(dept)
+                error_msg.append("No tags for department in db-table(tags): %s\nTags(%s) must exsisted in dbtable(Tags)" % (str(dept),str(tags)))
+                continue
+
+            # 检查数据库中是否存在该科室的标签信息，有则先删除，然后再插入
+            sql_check = "SELECT * FROM departmert_tag WHERE department_id = %d " \
+                        "AND tag_name NOT IN ('A+','A','B') AND is_grade=0" % (dept[0])
+            if len(self.db_server.listDataBySQL(sql_check)) > 0:
+                sql = "DELETE FROM departmert_tag WHERE department_id = %d " \
+                      "AND tag_name NOT IN ('A+','A','B') AND is_grade=0" % (dept[0])
+                sql_del.append(sql)
+            for info in dept_tags_info:
+                sql = "INSERT INTO departmert_tag(department_id,department_name,tag_id,tag_name,is_grade) " \
+                      "VALUES ( %d,'%s',%d,'%s',0)" % (info[0], info[1].encode("utf-8"), info[2], info[3].encode("utf-8"))
+                sql_insert.append(sql)
+        # 插入数据
+        if len(sql_del+sql_insert) > 0:
+            sql = ";\n".join(sql_del+sql_insert)
+            print "**********************************\nsql:"
+            print sql
+            print "**********************************\nerrormsg:"
+            print "\n".join(error_msg)
+            self.db_server.updateDataBySQL(sql)
 
 
 
 if __name__ == "__main__":
     # db = "mysql,root/6tfc^YHN@10.0.127.16:3306/sodap"
-    file = "/Users/yan/PycharmProjects/TestTool/department_tags.txt"
-    # file = "C:\Users\Administrator\Desktop\department_tags.txt"
+    # file = "/Users/yan/PycharmProjects/TestTool/department_tags.txt"
+    file = "C:\Users\Administrator\Desktop\department_tags.txt"
     db = "mysql,root/6tfc^YHN@ali2.jycch.com:3306/sodap"
+    # db = "mysql,root/6tfc^YHN@10.0.127.10:3306/sodap"
     open_format = "rb"
     code_format = "gb2312"
     deptServer = DepartmentTags(db)
 
-    list_depts = deptServer.get_deptinfo()
-    list_tags = deptServer.get_taginfo()
-    ref_tags_dict = deptServer.get_refrence_tags(file, open_format, code_format)
-    msg = deptServer.assertTagsOfDepartments(list_depts, list_tags, ref_tags_dict)
-    if len(msg) > 0:
-        mail_server = MailServer()
-        receiver = ["1106045430@qq.com", "18108347985@163.com"]
-        title = "科室标签差异信息"
-        content = "\n".join(msg)
-        mail_server.send_mail(receiver, title, content)
+    depts_info = deptServer.get_deptinfo()
+    depttags_info = deptServer.get_dept_taginfo()
+    ref_tags_info = deptServer.get_refrence_tags(file, open_format, code_format)
+    msg,untaged_depts,unchecked_depts,wrongtag_depts= deptServer.assertTagsOfDepartments(depts_info, depttags_info, ref_tags_info)
+    print "\n".join(msg)
+    # if len(msg) > 1:
+    #     mail_server = MailServer()
+    #     receiver = ["1106045430@qq.com", "18108347985@163.com"]
+    #     title = "科室标签差异信息"
+    #     content = "\n".join(msg)
+    #     mail_server.send_mail(receiver, title, content)
+    tags_info = deptServer.get_taginfo()
+    deptServer.attachTagsToDept(untaged_depts,tags_info,ref_tags_info)
+
