@@ -109,7 +109,7 @@ class DepartmentTags(object):
         :param ref_tags_info: 参考科室标签字典{科室名称:[标签1,标签2,...],...}
         :return:结果信息msg，未到标签的科室列表untaged_depts，未检验的科室列表unchecked_depts，标签有误的科室列表wrongtag_depts
         '''
-        msg = ["%-10s%-35s%-8s%-20s%-34s%-38s%-30s" % (u"医院id", u"医院", u"科室id", u"科室", u"标签", u"参考标签", u"结果")]
+        msg = [[u"医院id", u"医院", u"科室id", u"科室", u"标签", u"参考标签", u"结果"]]
         untaged_depts = []
         unchecked_depts = []
         wrongtag_depts = []
@@ -120,50 +120,44 @@ class DepartmentTags(object):
             list_dept_tags_ref = ref_tags_info.get(dept_name,[])
 
             if len(list_dept_tags) == 0:  #数据库中未给该科室打标签
-                # print ("%s(id:%d)-%s(id:%d) has no tag in db" % (dept[3],dept[2],dept_name,dept_id))
-                msg.append("%-10s%s%-10s%-s%-s%-s%-30s" %(str(dept[2]),
-                                                          self.myAlign(dept[3],20),
-                                                          str(dept_id),
-                                                          self.myAlign(dept_name,10),
-                                                          self.myAlign("**",38),
-                                                          self.myAlign(u",".join(list_dept_tags_ref),20),
-                                                          u"未打标签"))
+                msg.append([str(dept[2]),
+                            dept[3],
+                            str(dept_id),
+                            dept_name,
+                            "**",
+                            u",".join(list_dept_tags_ref),
+                            u"未打标签"])
                 untaged_depts.append(dept)
             if len(list_dept_tags_ref) == 0:  # 参照文件中不存在该科室的标签信息
-                # print ("%s(id:%d)-%s(id:%d) has no refrence tags in file" % (dept[3],dept[2],dept_name,dept_id))
-                msg.append("%-10s%s%-10s%-s%-s%-s%-30s" % (str(dept[2]),
-                                                           self.myAlign(dept[3], 20),
-                                                           str(dept_id),
-                                                           self.myAlign(dept_name, 9),
-                                                           self.myAlign(u",".join(list_dept_tags), 20),
-                                                           self.myAlign("**", 40),
-                                                           u"参考标签不存在"))
+                msg.append([str(dept[2]),
+                            dept[3],
+                            str(dept_id),
+                            dept_name,
+                            u",".join(list_dept_tags),
+                            "**",
+                            u"参考标签不存在"])
                 unchecked_depts.append(dept)
             if len(list_dept_tags) > 0 and len(list_dept_tags_ref) > 0:  #将数据库中标签与参考文件中做比较
                 missed_tags = [tag for tag in list_dept_tags_ref if tag not in list_dept_tags]  #漏打的标签
                 wrong_tags = [tag for tag in list_dept_tags if tag not in list_dept_tags_ref]   #错误的标签
                 if len(missed_tags) > 0:
-                    # print ("%s(id:%d)-%s(id:%d)  in db missed tags:%s" % (dept[3],dept[2],dept_name,dept_id,",".join(missed_tags)))
-                    msg.append(
-                        "%-10s%s%-10s%-s%-s%-s%-30s" % (str(dept[2]),
-                                                        self.myAlign(dept[3], 20),
-                                                        str(dept_id),
-                                                        self.myAlign(dept_name,9),
-                                                        self.myAlign(u",".join(list_dept_tags), 20),
-                                                        self.myAlign(u",".join(list_dept_tags_ref), 21),
-                                                        u"不完整标签"))
+                    msg.append([str(dept[2]),
+                                dept[3],
+                                str(dept_id),
+                                dept_name,
+                                u",".join(list_dept_tags),
+                                u",".join(list_dept_tags_ref),
+                                u"不完整标签"])
                     wrongtag_depts.append(dept)
 
                 if len(wrong_tags) > 0:
-                    # print ("%s(id:%d)-%s(id:%d)  in db has wrong tags:%s" % (dept[3],dept[2],dept_name,dept_id,",".join(wrong_tags)))
-                    msg.append(
-                        "%-10s%s%-10s%-s%-s%-s%-30s" % (str(dept[2]),
-                                                        self.myAlign(dept[3], 20),
-                                                        str(dept_id),
-                                                        self.myAlign(dept_name, 10),
-                                                        self.myAlign(u",".join(list_dept_tags), 20),
-                                                        self.myAlign(u",".join(list_dept_tags_ref), 20),
-                                                        u"错误标签"))
+                    msg.append([str(dept[2]),
+                                dept[3],
+                                str(dept_id),
+                                dept_name,
+                                u",".join(list_dept_tags),
+                                u",".join(list_dept_tags_ref),
+                                u"错误标签"])
                     wrongtag_depts.append(dept)
         return msg,untaged_depts,unchecked_depts,wrongtag_depts
 
@@ -212,7 +206,9 @@ class DepartmentTags(object):
         # 插入数据
         if len(sql_del+sql_insert) > 0:
             sql = ";\n".join(sql_del+sql_insert)
-            self.db_server.updateDataBySQL(sql)
+            print(sql)
+            rs = self.db_server.updateDataBySQL(sql)
+            return True,sql
             
 
 

@@ -51,12 +51,12 @@ class MailServer(object):
         finally:
             s.close()
 
-if __name__ == "__main__":
-    mail_server = MailServer()
-    receiver = ["1106045430@qq.com","18108347985@163.com"]
-    title = "放假通知"
-    content = "python mail test"
-    attachment = "C:/GIT/TestTool/DepartmentTags/result.xls"
-    mail_server.send_mail(receiver,title,content,attachment)
+# if __name__ == "__main__":
+#     mail_server = MailServer()
+#     receiver = ["1106045430@qq.com","18108347985@163.com"]
+#     title = "放假通知"
+#     content = "python mail test"
+#     attachment = "C:/GIT/TestTool/DepartmentTags/result.xls"
+#     mail_server.send_mail(receiver,title,content,attachment)
 
 

@@ -1,5 +1,6 @@
 # encoding:utf-8
 import chardet,uniout
+import xlrd,xlwt
 class FileServer(object):
     def __init__(self):
         pass
@@ -70,24 +71,28 @@ class FileServer(object):
         encode_format = encode_info.get("encoding")
         return encode_format
 
+    def write_list_to_excel(self,list,file,sheetname):
+        if len(list)>0:
+            wb = xlwt.Workbook()
+            sheet1 = wb.add_sheet(sheetname)
+            for i in range(len(list)):
+                for j in range(len(list[i])):
+                    sheet1.write(i,j,list[i][j])
+            wb.save(file)
+
+
+
+
 
 if __name__ == "__main__":
     file = "/Users/yan/PycharmProjects/TestTool/department_tags.txt"
     # file = "C:\Users\Administrator\Desktop\department_tags.txt"
     open_format = "rb"
     fileserver = FileServer()
-    #
-    # str_data = fileserver.file_read(file,open_format)
-    # # print str_data.decode("gb2312")
-    # list_data = str_data.split("\n")
-    # print(list_data)
-    #验证文件编码格式
-    # f = open(file, "rb")
-    # data = f.read()
-    # print(chardet.detect(data))
-    # f.close()
-    encode_format=fileserver.get_encode_format(file)
-    print(encode_format,type(encode_format))
+
+    file_excel = u"科室标签检查结果.xls"
+    fileserver.write_list_to_excel([[1,2,3],[4,5,6]],file_excel,u"科室标签检查结果")
+
 
 
 
