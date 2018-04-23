@@ -1,6 +1,7 @@
 #encoding:utf-8
 import pymysql
 import sys
+
 class DBServer(object):
     #"oracle,pdwdata_uat/123456@10.20.112.123:1521/pdw"
     def __init__(self,db):
@@ -66,17 +67,7 @@ class DBServer(object):
             cur.execute(str_sql)
             conn.commit()
         except Exception as e:
-            print ("*ERROR*" , repr(e))
-        finally:
-            self.__close(conn,cur)
-
-    def deleteDataBySQL(self,str_sql):
-        conn,cur = self.__connect()
-        try:
-            cur.execute(str_sql)
-            conn.commit()
-        except Exception as e:
-
+            print("2222")
             print ("*ERROR*" , repr(e))
         finally:
             self.__close(conn,cur)

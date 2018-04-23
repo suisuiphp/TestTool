@@ -68,23 +68,27 @@ class FileServer(object):
         file_data = self.file_read(filename,"rb")
         encode_info = chardet.detect(file_data)
         encode_format = encode_info.get("encoding")
-        print encode_format
+        return encode_format
 
 
 if __name__ == "__main__":
-    # file = "/Users/yan/PycharmProjects/TestTool/department_tags.txt"
-    file = "C:\Users\Administrator\Desktop\department_tags.txt"
+    file = "/Users/yan/PycharmProjects/TestTool/department_tags.txt"
+    # file = "C:\Users\Administrator\Desktop\department_tags.txt"
     open_format = "rb"
-    # fileserver = FileServer()
+    fileserver = FileServer()
     #
     # str_data = fileserver.file_read(file,open_format)
     # # print str_data.decode("gb2312")
     # list_data = str_data.split("\n")
     # print(list_data)
     #验证文件编码格式
-    f = open(file, "rb")
-    data = f.read()
-    print(chardet.detect(data))
-    f.close()
+    # f = open(file, "rb")
+    # data = f.read()
+    # print(chardet.detect(data))
+    # f.close()
+    encode_format=fileserver.get_encode_format(file)
+    print(encode_format,type(encode_format))
+
+
 
 

@@ -41,11 +41,11 @@ class DepartmentTags(object):
         else:
             print("*ERROR* decode data type can only be str,list!")
 
-    def get_refrence_tags(self, file, open_format, code_format):
+    def get_refrence_tags(self, file, open_format):
         # 获取TXT文件数据到列表中
         tags_data = self.list_filedata(file, open_format)
-        print("原始文件数据列表：", tags_data)
         # 将列表数据按需要的格式进行解码
+        code_format = self.file_server.get_encode_format(file)
         tags_data = self.decode_data(tags_data, code_format)
         # 建立科室-标签字典
         dept_tags = {}
@@ -206,14 +206,16 @@ class DepartmentTags(object):
                 sql = "INSERT INTO departmert_tag(department_id,department_name,tag_id,tag_name,is_grade) " \
                       "VALUES ( %d,'%s',%d,'%s',0)" % (info[0], info[1].encode("utf-8"), info[2], info[3].encode("utf-8"))
                 sql_insert.append(sql)
+        if len(error_msg)>0:
+            print("*ERROR* 以下科室标签更新失败")
+            print("\n".join(error_msg))
         # 插入数据
         if len(sql_del+sql_insert) > 0:
             sql = ";\n".join(sql_del+sql_insert)
-            print "**********************************\nsql:"
-            print sql
-            print "**********************************\nerrormsg:"
-            print "\n".join(error_msg)
             self.db_server.updateDataBySQL(sql)
+            
+
+
 
 
 
@@ -229,7 +231,7 @@ if __name__ == "__main__":
 
     depts_info = deptServer.get_deptinfo()
     depttags_info = deptServer.get_dept_taginfo()
-    ref_tags_info = deptServer.get_refrence_tags(file, open_format, code_format)
+    ref_tags_info = deptServer.get_refrence_tags(file, open_format)
     msg,untaged_depts,unchecked_depts,wrongtag_depts= deptServer.assertTagsOfDepartments(depts_info, depttags_info, ref_tags_info)
     print "\n".join(msg)
     # if len(msg) > 1:

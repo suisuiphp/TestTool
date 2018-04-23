@@ -36,9 +36,9 @@ class MailServer(object):
             s.connect(self.mail_host, 25) #连接到指定的smtp服务器，参数分别表示smpt主机和端口
             s.login(self.mail_user, self.mail_pass)
             s.sendmail(sender, receivers, msg.as_string())
-            print "邮件发送成功"
+            print "*INFO* 邮件发送成功"
         except Exception as e:
-            print "Error:无法发送邮件"
+            print "*ERROR* 无法发送邮件"
             print repr(e)
         finally:
             s.close()
