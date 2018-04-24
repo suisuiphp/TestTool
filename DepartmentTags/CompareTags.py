@@ -1,8 +1,14 @@
 #encoding:utf-8
 from DepartmentTags import DepartmentTags
 from Common.MailServer.MailServer import MailServer
-from Common.FileServer.FileServer import FileServer
+# from Common.FileServer.FileServer import FileServer
+from robot.api import logger
+import logging
+
 class CompareTags(object):
+    ROBOT_LIBRARY_SCOPE = "GLOBAL"
+    ROBOT_LIBRARY_VERSION = 0.1
+    ROBOT_LIBRARY_DOC_FORMAT = "reST"
     def __init__(self):
         pass
     def compareTags(self,db,file,mail_receiver=["18108347985@163.com"]):
@@ -22,11 +28,11 @@ class CompareTags(object):
             receiver = mail_receiver
             title = "科室标签可能有误，请确认"
             content = "您好\n数据库中标签的科室可能有误，详情见附件\n数据库：%s" % db
-            fileServer = FileServer()
-            fileServer.write_list_to_excel(msg,"tag_check_result.xls",u"科室标签对比结果")
-            attachment="tag_check_result.xls"
-            # mail_server.send_mail(receiver, title, content,attachment)
-            return untaged_depts+wrongtag_depts
+            # fileServer = FileServer()
+            # fileServer.write_list_to_excel(msg,"tag_check_result.xls",u"科室标签对比结果")
+            # attachment="tag_check_result.xls"
+            # # mail_server.send_mail(receiver, title, content,attachment)
+            # return untaged_depts+wrongtag_depts
         else:
             print "*INFO* department tags all right"
             return []
