@@ -1,7 +1,7 @@
 #encoding:utf-8
-from DepartmentTags import DepartmentTags
+from DepartmentTags.DepartmentTags import DepartmentTags
 from Common.MailServer.MailServer import MailServer
-# from Common.FileServer.FileServer import FileServer
+from Common.FileServer.FileServer import FileServer
 from robot.api import logger
 import logging
 
@@ -21,18 +21,20 @@ class CompareTags(object):
                                                                                                  depttags_info,
                                                                                                  ref_tags_info)
         if len(msg) > 1:
-            print("*WARN*科室标签可能有误，请确认")
+            print("*WARN*"+u"科室标签可能有误，请确认")
             for line in msg:
-                print(line)
+                for element in line:
+                    print element,
+                print("\n")
             mail_server = MailServer()
             receiver = mail_receiver
-            title = "科室标签可能有误，请确认"
-            content = "您好\n数据库中标签的科室可能有误，详情见附件\n数据库：%s" % db
-            # fileServer = FileServer()
-            # fileServer.write_list_to_excel(msg,"tag_check_result.xls",u"科室标签对比结果")
-            # attachment="tag_check_result.xls"
-            # # mail_server.send_mail(receiver, title, content,attachment)
-            # return untaged_depts+wrongtag_depts
+            title = u"科室标签可能有误，请确认"
+            content = u"您好\n数据库中标签的科室可能有误，详情见附件\n数据库：%s" % db
+            fileServer = FileServer()
+            fileServer.write_list_to_excel(msg,"tag_check_result.xls",u"科室标签对比结果")
+            attachment="tag_check_result.xls"
+            mail_server.send_mail(receiver, title, content,attachment)
+            return untaged_depts+wrongtag_depts+unchecked_depts
         else:
             print "*INFO* department tags all right"
             return []
@@ -48,10 +50,12 @@ class CompareTags(object):
             if mark:
                 mail_server = MailServer()
                 receiver = mail_receiver
-                title = "更新数据库标签信息执行SQL"
+                title = u"更新数据库标签信息执行SQL"
                 mail_server.send_mail(receiver,title,sql)
-                print("*INFO*数据库更新成功")
+                print(u"*INFO* 数据库更新成功:")
                 print sql
+            else:
+                print u"数据库更新失败"
 
 if __name__=="__main__":
     # file = "/Users/yan/PycharmProjects/TestTool/department_tags.txt"
@@ -59,5 +63,5 @@ if __name__=="__main__":
     # db = "mysql,root/123456@127.0.0.1:3306/null"
     db = "mysql,root/6tfc^YHN@ali2.jycch.com:3306/sodap"
     obj = CompareTags()
-    # dept_check =obj.compareTags(db,file)
-    obj.attachTags(db,file)
+    dept_check =obj.compareTags(db,file)
+    # obj.attachTags(db,file)

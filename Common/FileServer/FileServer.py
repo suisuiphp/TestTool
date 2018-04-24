@@ -10,7 +10,7 @@ class FileServer(object):
         try:
             file = open(filename, format)
         except Exception as e:
-            print("*ERROR* ", repr(e))
+            print("*ERROR* " ,repr(e))
         return file
 
     @staticmethod

@@ -1,6 +1,8 @@
 #encoding:utf-8
 import pymysql
 import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
 
 class DBServer(object):
     #"oracle,pdwdata_uat/123456@10.20.112.123:1521/pdw"
@@ -26,6 +28,7 @@ class DBServer(object):
             try:
                 conn = pymysql.connect(user=dbuser,password=dbpasswd,host=dbhost,port=dbport,db=dbdatabase,charset="utf8")
                 cur = conn.cursor()
+                cur.execute("SET NAMES UTF8")
             except Exception as e:
                 print("*ERROR*" + repr(e))
         return conn, cur
@@ -73,3 +76,7 @@ class DBServer(object):
         finally:
             self.__close(conn,cur)
         return mark
+
+if __name__=="__main__":
+    obj = DBServer("mysql,root/6tfc^YHN@ali2.jycch.com:3306/sodap")
+    print obj

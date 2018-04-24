@@ -190,6 +190,7 @@ class DepartmentTags(object):
                 continue
 
             # 检查数据库中是否存在该科室的标签信息，有则先删除，然后再插入
+            print "11111"
             sql_check = "SELECT * FROM departmert_tag WHERE department_id = %d " \
                         "AND tag_name NOT IN ('A+','A','B') AND is_grade=0" % (dept[0])
             if len(self.db_server.listDataBySQL(sql_check)) > 0:
@@ -201,7 +202,7 @@ class DepartmentTags(object):
                       "VALUES ( %d,'%s',%d,'%s',0)" % (info[0], info[1].encode("utf-8"), info[2], info[3].encode("utf-8"))
                 sql_insert.append(sql)
         if len(error_msg)>0:
-            print("*ERROR* 以下科室标签更新失败")
+            print(u"*ERROR* 以下科室标签更新失败")
             print("\n".join(error_msg))
         # 插入数据
         if len(sql_del+sql_insert) > 0:
@@ -209,4 +210,7 @@ class DepartmentTags(object):
             mark = self.db_server.updateDataBySQL(sql)
             return mark, sql
 
+if __name__=="__main__":
+    db = "mysql,root/6tfc^YHN@ali2.jycch.com:3306/sodap"
+    obj = DepartmentTags(db)
 
