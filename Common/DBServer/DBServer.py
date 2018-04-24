@@ -63,11 +63,13 @@ class DBServer(object):
 
     def updateDataBySQL(self,str_sql):
         conn,cur = self.__connect()
+        mark = False
         try:
             cur.execute(str_sql)
             conn.commit()
+            mark = True
         except Exception as e:
-            print("2222")
             print ("*ERROR*" , repr(e))
         finally:
             self.__close(conn,cur)
+        return mark

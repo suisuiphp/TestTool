@@ -84,16 +84,3 @@ class FileServer(object):
 
 
 
-if __name__ == "__main__":
-    file = "/Users/yan/PycharmProjects/TestTool/department_tags.txt"
-    # file = "C:\Users\Administrator\Desktop\department_tags.txt"
-    open_format = "rb"
-    fileserver = FileServer()
-
-    file_excel = u"科室标签检查结果.xls"
-    fileserver.write_list_to_excel([[1,2,3],[4,5,6]],file_excel,u"科室标签检查结果")
-
-
-
-
-

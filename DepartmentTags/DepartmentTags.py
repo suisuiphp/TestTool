@@ -206,36 +206,7 @@ class DepartmentTags(object):
         # 插入数据
         if len(sql_del+sql_insert) > 0:
             sql = ";\n".join(sql_del+sql_insert)
-            print(sql)
-            rs = self.db_server.updateDataBySQL(sql)
-            return True,sql
-            
+            mark = self.db_server.updateDataBySQL(sql)
+            return mark, sql
 
-
-
-
-
-if __name__ == "__main__":
-    # db = "mysql,root/6tfc^YHN@10.0.127.16:3306/sodap"
-    # file = "/Users/yan/PycharmProjects/TestTool/department_tags.txt"
-    file = "C:\Users\Administrator\Desktop\department_tags.txt"
-    db = "mysql,root/6tfc^YHN@ali2.jycch.com:3306/sodap"
-    # db = "mysql,root/6tfc^YHN@10.0.127.10:3306/sodap"
-    open_format = "rb"
-    code_format = "gb2312"
-    deptServer = DepartmentTags(db)
-
-    depts_info = deptServer.get_deptinfo()
-    depttags_info = deptServer.get_dept_taginfo()
-    ref_tags_info = deptServer.get_refrence_tags(file, open_format)
-    msg,untaged_depts,unchecked_depts,wrongtag_depts= deptServer.assertTagsOfDepartments(depts_info, depttags_info, ref_tags_info)
-    print "\n".join(msg)
-    # if len(msg) > 1:
-    #     mail_server = MailServer()
-    #     receiver = ["1106045430@qq.com", "18108347985@163.com"]
-    #     title = "科室标签差异信息"
-    #     content = "\n".join(msg)
-    #     mail_server.send_mail(receiver, title, content)
-    tags_info = deptServer.get_taginfo()
-    deptServer.attachTagsToDept(untaged_depts,tags_info,ref_tags_info)
 
